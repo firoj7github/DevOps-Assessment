@@ -1,0 +1,128 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Hydrus Digital BD — docker-compose.yml
+#
+# Usage:
+#   cp .env.example .env
+#   docker compose up --build
+#
+# Access:
+#   Frontend  →  http://localhost:3000
+#   Backend   →  http://localhost:8000/api/docs
+#   pgAdmin   →  http://localhost:5050
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+
+# ── Internal network ──────────────────────────────────────────────────────────
+networks:
+  hydrus-net:
+    driver: bridge
+
+# ── Services ──────────────────────────────────────────────────────────────────
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: hydrus-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-hydrus_db}
+      POSTGRES_USER:     ${POSTGRES_USER:-hydrus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hydrus_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hydrus-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hydrus} -d ${POSTGRES_DB:-hydrus_db}"]
+      interval: 10s
+      timeout:  5s
+      retries:  5
+      start_period: 10s
+    # Do NOT expose port 5432 to host in production — internal only
+    # Uncomment below only for local development/debugging:
+    # ports:
+    #   - "5432:5432"
+
+  # ── Backend FastAPI ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hydrus-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL:    postgresql://${POSTGRES_USER:-hydrus}:${POSTGRES_PASSWORD:-hydrus_pass}@db:5432/${POSTGRES_DB:-hydrus_db}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ENVIRONMENT:     ${ENVIRONMENT:-development}
+      APP_VERSION:     ${APP_VERSION:-1.0.0}
+    networks:
+      - hydrus-net
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout:  10s
+      retries:  3
+      start_period: 20s
+    # Resource limits — prevents one service from starving others
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  # ── Frontend React (nginx) ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Backend is reached from the BROWSER, so use the host-visible URL
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000}
+    container_name: hydrus-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - hydrus-net
+    ports:
+      - "3000:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/nginx-health || exit 1"]
+      interval: 30s
+      timeout:  5s
+      retries:  3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+
+  # ── pgAdmin (optional — start with: docker compose --profile tools up) ───────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hydrus-pgadmin
+    profiles: ["tools"]
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL:    ${PGADMIN_EMAIL:-admin@hydrus.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    networks:
+      - hydrus-net
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
