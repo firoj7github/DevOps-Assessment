@@ -9,7 +9,7 @@ WORKDIR /app
 # Copy dependency manifests first (layer cache optimisation)
 COPY package.json package-lock.json* ./
 
-RUN npm ci --silent
+RUN npm install
 
 # Copy source and build
 # REACT_APP_API_URL can be overridden at build time:
