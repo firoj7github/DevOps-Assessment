@@ -30,7 +30,7 @@ spec:
 
       containers:
         - name: backend
-          image: <ACR_LOGIN_SERVER>/hydrus-backend:latest
+          image: hydrus-backend
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

@@ -7,7 +7,16 @@ import asyncpg
 app = FastAPI()
 
 # Settings & Middleware
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:pass@localhost:5432/db")
+# ── DATABASE CONFIGURATION (এখানে যোগ করবেন) ──────────────────────────────
+# Kubernetes Secret ও ConfigMap থেকে আসা এনভায়রনমেন্ট ভ্যারিয়েবলগুলো রিড করা
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST", "hydrus-postgres")
+DB_NAME = os.getenv("DB_NAME", "hydrusdb")
+
+# Connection String তৈরি করা
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:5432/{DB_NAME}"
+# ──────────────
 
 app.add_middleware(
     CORSMiddleware,

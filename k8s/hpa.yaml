@@ -33,7 +33,7 @@ spec:
           value: 2
           periodSeconds: 60
     scaleDown:
-      stabilizationWindowSeconds: 300   # 5 min cool-down to prevent flapping
+      stabilizationWindowSeconds: 300
       policies:
         - type: Pods
           value: 1

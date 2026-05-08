@@ -24,7 +24,7 @@ variables:
 
 stages:
 
-# ── STAGE 1: Code Quality & Security (SonarQube) ─────────────────────────────
+# STAGE 1: Code Quality & Security (SonarQube)
 - stage: Analysis
   displayName: "Code Quality Analysis"
   jobs:
@@ -35,7 +35,7 @@ stages:
       steps:
         - task: SonarQubePrepare@5
           inputs:
-            SonarQube: 'SonarQube_Service_Connection' # আপনার কানেকশন নাম
+            SonarQube: 'SonarQube_Service_Connection'
             scannerMode: 'CLI'
             configMode: 'manual'
             cliProjectKey: 'hydrus-devops-assessment'
@@ -58,7 +58,7 @@ stages:
       pool:
         vmImage: ubuntu-latest
       steps:
-        # ১. Azure ACR Login
+        # 1. Azure ACR Login
         - task: AzureCLI@2
           displayName: "ACR Login"
           inputs:
@@ -67,7 +67,7 @@ stages:
             scriptLocation: inlineScript
             inlineScript: az acr login --name $(ACR_NAME)
 
-        # ২. Backend Build & Local Scan
+        # 2. Backend Build & Local Scan
         - task: Docker@2
           displayName: "Build Backend Locally"
           inputs:
@@ -94,7 +94,7 @@ stages:
               $(imageTag)
               latest
 
-        # ৩. Frontend Build & Local Scan
+        # 3. Frontend Build & Local Scan
         - task: Docker@2
           displayName: "Build Frontend Locally"
           inputs:
@@ -121,7 +121,7 @@ stages:
               $(imageTag)
               latest
 
-# ── STAGE 3: Deploy & Rollback (AKS) ──────────────────────────────────────────
+# STAGE 3: Deploy & Rollback (AKS)
 - stage: Deploy
   displayName: "Deploy to AKS"
   dependsOn: Build
@@ -151,9 +151,12 @@ stages:
                   manifests: |
                     k8s/namespace.yaml
                     k8s/configmap.yaml
+                    k8s/secret-example.yaml
                     k8s/backend-deployment.yaml
                     k8s/frontend-deployment.yaml
+                    k8s/service.yaml
                     k8s/ingress.yaml
+                    k8s/hpa.yaml
                   containers: |
                     $(acrLoginServer)/hydrus-backend:$(imageTag)
                     $(acrLoginServer)/hydrus-frontend:$(imageTag)
@@ -164,7 +167,6 @@ stages:
                   azureSubscription: $(AZURE_SERVICE_CONNECTION)
                   scriptType: bash
                   inlineScript: |
-                    # অ্যাপ রেডি হওয়ার জন্য কিছুটা সময় দেওয়া
                     sleep 30 
                     STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://hydrus.example.com/health)
                     echo "Health check status: $STATUS"

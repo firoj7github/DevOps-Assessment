@@ -28,7 +28,7 @@ spec:
 
       containers:
         - name: frontend
-          image: <ACR_LOGIN_SERVER>/hydrus-frontend:latest
+          image: hydrus-frontend
           imagePullPolicy: Always
           ports:
             - containerPort: 80
