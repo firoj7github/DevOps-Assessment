@@ -9,7 +9,7 @@ variable "location" {
 }
 variable "kubernetes_version" {
   type    = string
-  default = "1.28"
+  default = "1.30"
 }
 variable "node_count" {
   description = "Initial node count (used as reference; autoscaler controls actual count)"

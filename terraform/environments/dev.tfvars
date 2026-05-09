@@ -9,7 +9,7 @@ aks_node_count         = 2
 aks_min_node_count     = 1
 aks_max_node_count     = 3
 aks_vm_size            = "Standard_D2s_v3"
-aks_kubernetes_version = "1.28"
+aks_kubernetes_version = "1.30"
 
 acr_sku = "Basic"
 

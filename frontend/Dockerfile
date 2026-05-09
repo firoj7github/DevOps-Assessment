@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency manifests first (layer cache optimisation)
+
 COPY package.json package-lock.json* ./
 
 RUN npm install
@@ -18,16 +18,15 @@ COPY . .
 RUN npm run build
 
 
-# ─────────────────────────────────────────────
+
 # Stage 2 — nginx runtime
-# Serve static files; ~20 MB final image
-# ─────────────────────────────────────────────
+
 FROM nginx:1.27-alpine AS runtime
 
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Custom nginx config (SPA-friendly, security headers)
+# Custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from builder stage

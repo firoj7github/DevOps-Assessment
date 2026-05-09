@@ -62,9 +62,6 @@ stages:
       pool:
         vmImage: ubuntu-latest
       steps:
-
-        # Image tag তৈরি: branch-name এর / → - করা হয়, SHA প্রথম 8 char নেওয়া হয়
-        # উদাহরণ: main-a1b2c3d4 অথবা feature-login-e5f6g7h8
         - script: |
             SAFE_BRANCH=$(echo "$(Build.SourceBranchName)" | tr '/' '-')
             SHORT_SHA=$(echo "$(Build.SourceVersion)" | cut -c1-8)
@@ -82,7 +79,7 @@ stages:
             scriptLocation: inlineScript
             inlineScript: az acr login --name $(ACR_NAME)
 
-        # ── BACKEND ───────────────────────────────────────────
+        # ── BACKEND 
         - task: Docker@2
           displayName: "Build Backend Image"
           inputs:
@@ -118,7 +115,7 @@ stages:
               $(SetTag.imageTag)
               latest
 
-        # ── FRONTEND ──────────────────────────────────────────
+        # ── FRONTEND 
         - task: Docker@2
           displayName: "Build Frontend Image"
           inputs:
@@ -152,8 +149,6 @@ stages:
               $(SetTag.imageTag)
               latest
 
-        # Trivy JSON report Azure DevOps এ artifact হিসেবে সেভ হবে
-        # Pipeline run এর "Artifacts" tab এ দেখা যাবে
         - task: PublishBuildArtifacts@1
           displayName: "Publish Trivy Scan Reports"
           condition: always()
@@ -161,11 +156,9 @@ stages:
             pathToPublish: $(Build.ArtifactStagingDirectory)/trivy
             artifactName: trivy-reports
 
-# ══════════════════════════════════════════════════════════
+
 # STAGE 3 — Deploy to AKS
-# শুধু main বা develop branch এ চলবে
-# PR এ এই stage চলে না
-# ══════════════════════════════════════════════════════════
+
 - stage: Deploy
   displayName: "Stage 3 — Deploy to AKS"
   dependsOn: Build
@@ -181,8 +174,6 @@ stages:
           deploy:
             steps:
               - checkout: self
-
-              # Build stage এর tag এখানেও দরকার, তাই আবার বানানো হচ্ছে
               - script: |
                   SAFE_BRANCH=$(echo "$(Build.SourceBranchName)" | tr '/' '-')
                   SHORT_SHA=$(echo "$(Build.SourceVersion)" | cut -c1-8)
@@ -204,7 +195,7 @@ stages:
                       --name $(aksCluster) \
                       --overwrite-existing
 
-              # DB secret YAML এ নেই — Key Vault থেকে এনে সরাসরি K8s এ inject করা হয়
+              
               - task: AzureKeyVault@2
                 displayName: "Fetch Secrets from Key Vault"
                 inputs:
@@ -244,7 +235,7 @@ stages:
                     $(acrLoginServer)/hydrus-backend:$(imageTag)
                     $(acrLoginServer)/hydrus-frontend:$(imageTag)
 
-              # Pod সম্পূর্ণ ready হওয়ার পর smoke test চলবে
+              # Smoke test will run after the pod is fully ready
               - task: AzureCLI@2
                 displayName: "Wait for Rollout"
                 inputs:
@@ -273,7 +264,7 @@ stages:
                       exit 1
                     fi
 
-              # Smoke test fail করলে এই step চলে এবং আগের revision এ ফিরে যায়
+              # If the smoke test fails, this step runs and rolls back to the previous revision
               - task: AzureCLI@2
                 displayName: "Rollback on Failure"
                 condition: failed()

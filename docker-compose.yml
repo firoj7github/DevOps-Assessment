@@ -1,5 +1,4 @@
 
-
 version: "3.9"
 
 # Named volumes
@@ -34,7 +33,6 @@ services:
       timeout:  5s
       retries:  5
       start_period: 10s
-    # Do NOT expose port 5432 to host in production — internal only
     # Uncomment below only for local development/debugging:
     # ports:
     #   - "5432:5432"

@@ -28,18 +28,18 @@ hydrus-devops-assessment/
 ├── .gitignore
 ├── docker-compose.yml
 ├── frontend/
-│   ├── Dockerfile            # multi-stage: node builder → nginx runtime
+│   ├── Dockerfile           
 │   ├── nginx.conf
 │   ├── package.json
 │   └── src/
 │       ├── index.js
 │       ├── index.css
 │       ├── App.js
-│       └── api.js            # configurable API base URL
+│       └── api.js            
 ├── backend/
-│   ├── Dockerfile            # multi-stage: builder → slim runtime
+│   ├── Dockerfile            
 │   ├── requirements.txt
-│   └── main.py               # FastAPI app with /health, /health/ready, /api/v1/*
+│   └── main.py               
 ├── terraform/
 │   ├── provider.tf
 │   ├── main.tf
@@ -54,17 +54,14 @@ hydrus-devops-assessment/
 ├── k8s/
 │   ├── namespace.yaml
 │   ├── configmap.yaml
-│   ├── secret-example.yaml
-│   ├── frontend-deployment.yaml
 │   ├── backend-deployment.yaml
+│   ├── frontend-deployment.yaml
 │   ├── service.yaml
 │   ├── ingress.yaml
-│   └── hpa.yaml
+│   ├── hpa.yaml
+│   
 ├── pipelines/
-│   └── azure-pipelines.yml       # Azure DevOps pipeline
-├── .github/
-│   └── workflows/
-│       └── ci-cd.yml             # GitHub Actions pipeline
+│   └── azure-pipelines.yml       
 └── docs/
     ├── architecture-diagram.png
     ├── monitoring-plan.md
@@ -83,8 +80,8 @@ hydrus-devops-assessment/
 
 ```bash
 # 1. Clone repo
-git clone https://github.com/<your-org>/hydrus-devops-assessment.git
-cd hydrus-devops-assessment
+git clone https://github.com/firoj7github/DevOps-Assessment
+cd DevOps-Assessment
 
 # 2. Set up environment variables
 cp .env.example .env
