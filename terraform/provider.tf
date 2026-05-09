@@ -8,12 +8,14 @@ terraform {
     }
   }
 
-  backend "azurerm" {
-    resource_group_name  = "hydrus-tf-state-rg"
-    storage_account_name = "hydrusstatestorage"
-    container_name       = "tfstate"
-    key                  = "hydrus.terraform.tfstate"
-  }
+  # Backend config is passed entirely via -backend-config flag at init time.
+  # This avoids hardcoding environment-specific values here.
+  #
+  # Usage:
+  #   terraform init -backend-config=environments/dev.backend.hcl
+  #   terraform init -backend-config=environments/stage.backend.hcl -reconfigure
+  #   terraform init -backend-config=environments/prod.backend.hcl -reconfigure
+  backend "azurerm" {}
 }
 
 provider "azurerm" {

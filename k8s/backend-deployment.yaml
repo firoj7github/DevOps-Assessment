@@ -89,19 +89,4 @@ spec:
             allowPrivilegeEscalation: false
 
       restartPolicy: Always
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: hydrus-backend-svc
-  namespace: hydrus
-spec:
-  # ClusterIP = internal only (backend should NOT be public)
-  type: ClusterIP
-  selector:
-    app: hydrus-backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8000
+      # Service definition is in k8s/service.yaml

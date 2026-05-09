@@ -60,18 +60,4 @@ spec:
 
           securityContext:
             allowPrivilegeEscalation: false
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: hydrus-frontend-svc
-  namespace: hydrus
-spec:
-  type: ClusterIP
-  selector:
-    app: hydrus-frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+      # Service definition is in k8s/service.yaml

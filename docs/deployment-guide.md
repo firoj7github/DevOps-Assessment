@@ -92,19 +92,23 @@ az storage container create \
 ```bash
 cd terraform
 
-# Initialize (downloads providers, connects to remote state)
-terraform init
-
-# Dev environment
-terraform workspace new dev
+# ── Dev environment ───────────────────────────────────────────────────────────
+terraform init -backend-config=environments/dev.backend.hcl
 terraform plan -var-file=environments/dev.tfvars -out=dev.plan
 terraform apply dev.plan
 
-# Stage environment
-terraform workspace new stage
+# ── Stage environment ─────────────────────────────────────────────────────────
+terraform init -backend-config=environments/stage.backend.hcl -reconfigure
 terraform plan -var-file=environments/stage.tfvars -out=stage.plan
 terraform apply stage.plan
+
+# ── Prod environment ──────────────────────────────────────────────────────────
+terraform init -backend-config=environments/prod.backend.hcl -reconfigure
+terraform plan -var-file=environments/prod.tfvars -out=prod.plan
+terraform apply prod.plan
 ```
+
+> `-reconfigure` flag টা দরকার যখন একই directory থেকে ভিন্ন environment এ switch করা হয়।
 
 ### 2.4 Key Outputs
 
@@ -124,9 +128,12 @@ terraform output kubeconfig_command   # az aks get-credentials ...
 ### 3.1 Get Cluster Credentials
 
 ```bash
+# terraform output থেকে সঠিক command নাও
+terraform output kubeconfig_command
+# অথবা manually:
 az aks get-credentials \
-  --resource-group hydrus-rg \
-  --name hydrus-aks \
+  --resource-group $(terraform output -raw resource_group_name) \
+  --name $(terraform output -raw aks_cluster_name) \
   --overwrite-existing
 
 kubectl get nodes   # verify connection
@@ -156,6 +163,7 @@ docker push $ACR/hydrus-frontend:$TAG
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/secret-example.yaml
+kubectl apply -f k8s/postgres-statefulset.yaml
 kubectl apply -f k8s/backend-deployment.yaml
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/service.yaml
@@ -248,6 +256,6 @@ kubectl delete namespace hydrus
 
 # Destroy Azure infra (careful — irreversible)
 cd terraform
-terraform workspace select dev
+terraform init -backend-config=environments/dev.backend.hcl
 terraform destroy -var-file=environments/dev.tfvars
 ```

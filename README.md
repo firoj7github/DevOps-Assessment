@@ -61,8 +61,10 @@ hydrus-devops-assessment/
 │   ├── ingress.yaml
 │   └── hpa.yaml
 ├── pipelines/
-│   ├── azure-pipelines.yml
-│   └── github-actions.yml
+│   └── azure-pipelines.yml       # Azure DevOps pipeline
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml             # GitHub Actions pipeline
 └── docs/
     ├── architecture-diagram.png
     ├── monitoring-plan.md
@@ -231,23 +233,23 @@ Common root causes:
 
 ### Q5. How would you manage separate dev, stage, and prod environments?
 
-Use **Terraform workspaces + environment-specific `.tfvars` files**:
+Use **environment-specific `.tfvars` + `-backend-config` files** so each environment has its own isolated state:
 
 ```bash
 # Dev
-terraform workspace new dev
+terraform init -backend-config=environments/dev.backend.hcl
 terraform apply -var-file=environments/dev.tfvars
 
 # Stage
-terraform workspace new stage
+terraform init -backend-config=environments/stage.backend.hcl -reconfigure
 terraform apply -var-file=environments/stage.tfvars
 
 # Prod
-terraform workspace new prod
+terraform init -backend-config=environments/prod.backend.hcl -reconfigure
 terraform apply -var-file=environments/prod.tfvars
 ```
 
-Each `.tfvars` overrides variables like `node_count`, `vm_sku`, `environment_tag`. State is isolated per workspace in the remote backend. For larger teams, a separate storage account per environment is recommended.
+Each environment gets its own state file (`dev/hydrus.tfstate`, `stage/hydrus.tfstate`, `prod/hydrus.tfstate`) in the same Azure Blob container. This prevents environments from overwriting each other's state.
 
 ---
 

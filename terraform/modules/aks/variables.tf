@@ -12,8 +12,11 @@ variable "kubernetes_version" {
   default = "1.28"
 }
 variable "node_count" {
+  description = "Initial node count (used as reference; autoscaler controls actual count)"
   type    = number
   default = 2
+  # Note: when auto_scaling_enabled = true, min_count/max_count take effect.
+  # node_count is only used during initial cluster creation.
 }
 variable "min_node_count" {
   type    = number
