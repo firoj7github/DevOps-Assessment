@@ -16,32 +16,26 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0      # Zero-downtime deployment
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: hydrus-backend
         tier: api
     spec:
-      # Security context — don't run as root
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
-
       containers:
         - name: backend
-          image: hydrus-backend
+          image: hydrus-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
-
-          # Config from ConfigMap
           envFrom:
             - configMapRef:
                 name: hydrus-config
-
-          # Secrets injected as env vars
           env:
             - name: DB_USER
               valueFrom:
@@ -53,8 +47,6 @@ spec:
                 secretKeyRef:
                   name: hydrus-db-secret
                   key: DB_PASSWORD
-
-          # Liveness probe — restarts container if app hangs
           livenessProbe:
             httpGet:
               path: /health
@@ -63,8 +55,6 @@ spec:
             periodSeconds: 15
             failureThreshold: 3
             timeoutSeconds: 5
-
-          # Readiness probe — removes pod from LB until truly ready
           readinessProbe:
             httpGet:
               path: /ready
@@ -73,8 +63,6 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
             timeoutSeconds: 5
-
-          # Resource limits prevent noisy-neighbor issues
           resources:
             requests:
               cpu: "100m"
@@ -82,11 +70,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-
-          # Read-only filesystem for security
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             allowPrivilegeEscalation: false
-
       restartPolicy: Always
-      # Service definition is in k8s/service.yaml

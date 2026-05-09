@@ -11,14 +11,12 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-    # CPU — scale when average CPU > 60%
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: 60
-    # Memory — scale when average memory > 70%
     - type: Resource
       resource:
         name: memory

@@ -31,15 +31,14 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 999   # postgres user
+        runAsUser: 999
         fsGroup: 999
-
       containers:
         - name: postgres
           image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
-
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -58,25 +57,21 @@ spec:
                   key: DB_PASSWORD
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
-
           livenessProbe:
             exec:
-              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+              command: ["pg_isready", "-U", "hydrus", "-d", "hydrusdb"]
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 5
-
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+              command: ["pg_isready", "-U", "hydrus", "-d", "hydrusdb"]
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 3
-
           resources:
             requests:
               cpu: "100m"
@@ -84,10 +79,8 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-
           securityContext:
             allowPrivilegeEscalation: false
-
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:

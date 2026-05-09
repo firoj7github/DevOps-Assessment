@@ -1,31 +1,22 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Hydrus Digital BD — .gitignore
-# ─────────────────────────────────────────────────────────────────────────────
 
-# ── Environment / Secrets ─────────────────────────────────────────────────────
+# ── Environment / Secrets
 .env
 .env.local
 .env.*.local
 *.env
 
-# ── Terraform ─────────────────────────────────────────────────────────────────
-# Provider binaries — বড়, regenerate করা যায়
-**/.terraform/
+# ── Terraform
 
-# Local state — Azure blob backend ব্যবহার হচ্ছে, local state git এ রাখা বিপজ্জনক
+**/.terraform/
 *.tfstate
 *.tfstate.backup
-
-# Override files — local dev এ কেউ যদি override করে
 *.tfoverride
 *.tfoverride.tf
 override.tf
 override.tf.json
 
-# NOTE: .terraform.lock.hcl এবং environments/*.tfvars git এ থাকবে
-# lock file provider version pin করে, tfvars এ কোনো secret নেই
 
-# ── Python ────────────────────────────────────────────────────────────────────
+# ── Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -40,7 +31,7 @@ build/
 .pytest_cache/
 .mypy_cache/
 
-# ── Node / React ──────────────────────────────────────────────────────────────
+# ── Node / React
 frontend/node_modules/
 frontend/build/
 frontend/.env
@@ -50,10 +41,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ── Docker ────────────────────────────────────────────────────────────────────
+# ── Docker
 docker-compose.override.yml
 
-# ── IDE / OS ──────────────────────────────────────────────────────────────────
+# ── IDE / OS
 .vscode/
 .idea/
 *.swp
@@ -61,6 +52,6 @@ docker-compose.override.yml
 .DS_Store
 Thumbs.db
 
-# ── Logs ──────────────────────────────────────────────────────────────────────
+# ── Logs
 *.log
 logs/

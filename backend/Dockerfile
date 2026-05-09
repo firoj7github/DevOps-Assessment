@@ -1,8 +1,4 @@
-# ─────────────────────────────────────────────
-# Stage 1 — builder
-# Install dependencies in an isolated layer so
-# the final image only copies what's needed.
-# ─────────────────────────────────────────────
+
 FROM python:3.12-slim AS builder
 
 WORKDIR /build
@@ -19,13 +15,11 @@ RUN pip install --upgrade pip \
     && pip install --prefix=/install --no-cache-dir -r requirements.txt
 
 
-# ─────────────────────────────────────────────
+
 # Stage 2 — runtime
-# Minimal image: no build tools, no cache files
-# ─────────────────────────────────────────────
+
 FROM python:3.12-slim AS runtime
 
-# Security: run as non-root user
 RUN groupadd --gid 1001 appgroup \
     && useradd  --uid 1001 --gid appgroup --no-create-home appuser
 

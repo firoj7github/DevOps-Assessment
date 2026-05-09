@@ -1,7 +1,4 @@
-# ─────────────────────────────────────────────
-# Stage 1 — node builder
-# Build the React static assets
-# ─────────────────────────────────────────────
+
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -13,7 +10,7 @@ RUN npm install
 
 # Copy source and build
 # REACT_APP_API_URL can be overridden at build time:
-#   docker build --build-arg REACT_APP_API_URL=https://api.example.com .
+# docker build --build-arg REACT_APP_API_URL=https://api.example.com .
 ARG REACT_APP_API_URL=""
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 

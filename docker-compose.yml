@@ -1,32 +1,21 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Hydrus Digital BD — docker-compose.yml
-#
-# Usage:
-#   cp .env.example .env
-#   docker compose up --build
-#
-# Access:
-#   Frontend  →  http://localhost:3000
-#   Backend   →  http://localhost:8000/api/docs
-#   pgAdmin   →  http://localhost:5050
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 version: "3.9"
 
-# ── Named volumes ─────────────────────────────────────────────────────────────
+# Named volumes
 volumes:
   postgres_data:
     driver: local
 
-# ── Internal network ──────────────────────────────────────────────────────────
+# Internal network
 networks:
   hydrus-net:
     driver: bridge
 
-# ── Services ──────────────────────────────────────────────────────────────────
+# Services
 services:
 
-  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  # PostgreSQL
   db:
     image: postgres:16-alpine
     container_name: hydrus-db
@@ -50,7 +39,7 @@ services:
     # ports:
     #   - "5432:5432"
 
-  # ── Backend FastAPI ──────────────────────────────────────────────────────────
+  # Backend FastAPI
   backend:
     build:
       context: ./backend
@@ -82,13 +71,12 @@ services:
           cpus: "0.50"
           memory: 256M
 
-  # ── Frontend React (nginx) ───────────────────────────────────────────────────
+  # Frontend React (nginx)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Backend is reached from the BROWSER, so use the host-visible URL
         REACT_APP_API_URL: ${REACT_APP_API_URL}
     container_name: hydrus-frontend
     restart: unless-stopped
@@ -111,7 +99,7 @@ services:
           cpus: "0.25"
           memory: 64M
 
-  # ── pgAdmin (optional — start with: docker compose --profile tools up) ───────
+  # pgAdmin
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: hydrus-pgadmin

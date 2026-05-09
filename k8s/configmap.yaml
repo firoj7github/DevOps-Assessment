@@ -7,6 +7,5 @@ data:
   DB_HOST: "hydrus-postgres"
   DB_PORT: "5432"
   DB_NAME: "hydrusdb"
-  # Non-sensitive config only — secrets go in Secret resource
   ALLOWED_ORIGINS: "https://hydrus.example.com"
   LOG_LEVEL: "INFO"

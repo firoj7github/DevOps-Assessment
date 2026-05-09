@@ -26,14 +26,12 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
-
       containers:
         - name: frontend
-          image: hydrus-frontend
+          image: hydrus-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-
           livenessProbe:
             httpGet:
               path: /
@@ -41,7 +39,6 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
             failureThreshold: 3
-
           readinessProbe:
             httpGet:
               path: /
@@ -49,7 +46,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 3
-
           resources:
             requests:
               cpu: "50m"
@@ -57,7 +53,5 @@ spec:
             limits:
               cpu: "200m"
               memory: "256Mi"
-
           securityContext:
             allowPrivilegeEscalation: false
-      # Service definition is in k8s/service.yaml
