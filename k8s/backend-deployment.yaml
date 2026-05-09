@@ -8,6 +8,7 @@ metadata:
     tier: api
 spec:
   replicas: 2
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: hydrus-backend
